@@ -9,7 +9,7 @@ pipeline {
         stage('Fetch Upcoming Branch') {
             steps {
                 script {
-                    def upcomingBranch = bat(script: '''
+                    def upcomingBranch = sh(script: '''
                         git ls-remote --heads https://github.com/SahilBirwadkar/FreelancingDemo.git | 
                         awk -F'/' '/upcoming/ {print $3}' | head -n 1
                     ''', returnStdout: true).trim()
@@ -23,7 +23,7 @@ pipeline {
         stage('Checkout and Merge Develop') {
             steps {
                 script {
-                    bat """
+                    sh """
                         git checkout ${env.UPCOMING_BRANCH}
                         git pull origin ${env.UPCOMING_BRANCH}
                         git merge origin/develop || echo "Merge conflict detected"
@@ -35,11 +35,11 @@ pipeline {
         stage('Handle Merge Conflicts') {
             steps {
                 script {
-                    def mergeStatus = bat(script: "git status --porcelain | grep '^U' | wc -l", returnStdout: true).trim()
+                    def mergeStatus = sh(script: "git status --porcelain | grep '^U' | wc -l", returnStdout: true).trim()
                     
                     if (mergeStatus != "0") {
                         echo "Merge conflict detected. Creating PR..."
-                        bat """
+                        sh """
                             curl -u "$GITHUB_CREDENTIALS" -X POST \
                                 -H "Accept: application/vnd.github.v3+json" \
                                 -H "Authorization: token $GITHUB_CREDENTIALS" \
@@ -60,7 +60,7 @@ pipeline {
             steps {
                 script {
                     echo "Building and deploying ${env.UPCOMING_BRANCH}"
-                    bat "./gradlew build"
+                    sh "./gradlew build"
                 }
             }
         }
