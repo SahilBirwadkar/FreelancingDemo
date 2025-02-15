@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        GITHUB_CREDENTIALS = credentials('github-pat')  // Uses GitHub credentials from Jenkins
+        GITHUB_CREDENTIALS = credentials('github-credentials')  // Uses GitHub credentials from Jenkins
     }
 
     stages {
